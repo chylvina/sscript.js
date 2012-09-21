@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>sscrity demo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- Le styles -->
+  <link href="./css/bootstrap.css" rel="stylesheet">
+  <link href="./css/bootstrap-responsive.css" rel="stylesheet">
+  <link href="./css/demo.css" rel="stylesheet">
+  <link href="../lib/google-code-prettify/prettify.css" rel="stylesheet">
+
+</head>
+
+<body>
+
+  <div class="container" id="container">
+
+    <!-- Docs nav
+    ================================================== -->
+    <div class="row">
+        <div class="span3">
+          <h3>Samples</h3>
+          <div class="well" style="padding: 8px 0; margin-bottom: 20px;">
+            <ul id="samplesNav" class="nav nav-list">
+              <!-- Syntax -->
+              <li class="nav-header">Syntax</li>
+              <li><a href="javascript:void(0);">Comment</a></li>
+              <li><a href="javascript:void(0);">Case Sensitive</a></li>
+              <li><a href="javascript:void(0);">Identifier</a></li>
+              <!-- Keywords -->
+              <li class="nav-header">Keywords</li>
+              <li><a href="javascript:void(0);">var</a></li>
+              <li><a href="javascript:void(0);">if..else</a></li>
+              <li><a href="javascript:void(0);">while</a></li>
+              <li><a href="javascript:void(0);">print</a></li>
+              <li><a href="javascript:void(0);">value</a></li>
+              <li><a href="javascript:void(0);">text</a></li>
+              <li><a href="javascript:void(0);">eval</a></li>
+              <!-- Variables -->
+              <li class="nav-header">Variables & Data Types</li>
+              <li><a href="javascript:void(0);">String</a></li>
+              <li><a href="javascript:void(0);">int</a></li>
+              <li><span>Html ELement</span></li>
+              <!-- Operators -->
+              <li class="nav-header">Operators</li>
+              <li><a href="javascript:void(0);">Unary Operators</a></li>
+              <li><span>Bitwise Operators</span></li>
+              <li><a href="javascript:void(0);">Boolean Operators</a></li>
+              <li><a href="javascript:void(0);">Multiplicative Operators</a></li>
+              <li><a href="javascript:void(0);">Modulus</a></li>
+              <li><a href="javascript:void(0);">Additive Operators</a></li>
+              <li><a href="javascript:void(0);">Relational Operators</a></li>
+              <li><a href="javascript:void(0);">Equality Operators</a></li>
+              <li><span>Identically Equality Operators</span></li>
+              <li><span>Conditional Operators</span></li>
+              <li><a href="javascript:void(0);">Assignment Operators</a></li>
+              <li><span>Comma Operators</span></li>
+              <!-- Functions -->
+              <li class="nav-header">Functions</li>
+              <!-- Html Manipulate -->
+              <li class="nav-header">Html Manipulation</li>
+              <li><a href="javascript:void(0);">Selector</a></li>
+              <li><a href="javascript:void(0);">Manipulation</a></li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="span9">
+          <div class="row">
+            <div class="span5 control-group warning">
+              <h3>Machine Code Panel</h3>
+              <textarea id="machindCode" class="span5" rows="8" wrap="off"></textarea>
+            </div>
+
+            <div class="span4 control-group">
+              <h3>Log Panel:</h3>
+              <textarea id="log" class="span4" rows="8" wrap="off"></textarea>
+            </div>
+
+            <div class="span5 control-group">
+              <h3>Commands Panel</h3>
+              <textarea id="content" class="span5" rows="12" placeholder="Type commands here." wrap="off"></textarea>
+              <button id="runBtn" class="btn btn-primary">Run code (Ctrl + Enter)</button>
+              <button id="resetBtn" class="btn">Clear</button>
+            </div>
+
+            <div class="span4 control-group error">
+              <h3>Error Panel:</h3>
+              <textarea id="errorPanel" class="span4" rows="8" wrap="off"></textarea>
+            </div>
+
+            <div class="span4 control-group success">
+              <h3>Result Panel:</h3>
+              <textarea id="resultPanel" class="span4" rows="6" wrap="off"></textarea>
+            </div>
+          </div>
+        </div>
+
+    </div>
+
+  </div>
+
+  <!-- Common Library
+  ================================================== -->
+  <script src="../lib/jquery-1.8.1.min.js"></script>
+
+  <!--Survey Script javascript
+  ================================================== -->
+  <script src="../src/oop.js"></script>
+  <script src="../src/Compiler.js"></script>
+  <script src="../src/Machine.js"></script>
+  <script src="../src/Errors.js"></script>
+  <script src="../src/Node.js"></script>
+  <script src="../src/Parser.js"></script>
+  <script src="../src/Reader.js"></script>
+  <script src="../src/Scanner.js"></script>
+  <script src="../src/Token.js"></script>
+
+  <!-- our tester -->
+  <script type="text/javascript">
+    // help to log time consumed.
+    var startTime;
+
+    function log(str) {
+      str += " " + (currentTime() - startTime) + "ms";
+      $("#log").prepend(str + "\r\n");
+    }
+    function errorLog(str) {
+      $("#errorPanel").prepend(str + "\r\n");
+    }
+    function output(str) {
+      $("#resultPanel").append(str + "\r\n");
+    }
+    function currentTime() {
+      return (new Date()).getTime();
+    }
+
+    $(function () {      // init UI
+      $("#runBtn").click(function () {
+        run($("#content").val());
+      });
+
+      $("#resetBtn").click(function () {
+        $("#machindCode").val("");
+        $("#content").val("");
+        $("#errorPanel").val("");
+        $("#log").val("");
+        $("#resultPanel").val("");
+      });
+
+      $('#content').keydown(function (event) {
+        if (event.which == 13) {
+          if (event.ctrlKey) {
+            event.preventDefault();
+            run($("#content").val());
+          }
+        }
+      });
+
+      $("#samplesNav a").click(function (e) {
+        var code = "";
+        switch($(e.target).text()) {
+          case "Case Sensitive":
+            code = "print 'Hello World!';  // Correct\r\nPrint 'Hello World!';  // false, use lower case";
+            break;
+          case "Comment":
+            code = "// single line comment\r\n/*\r\n * This is a multi-line\r\n * Comment\r\n */";
+            break;
+          case "Identifier":
+            code = "// sscript compiler will read identifier one by one.\r\n// Refer to Log Panel\r\ntrue\r\nfalse\r\nvariable\r\n+\r\n-\r\n*\r\n++";
+            break;
+          case "var":
+            code = "var i = 1;\r\nprint i;";
+            break;
+          case "if..else":
+            code = "if(true) {\r\n  print 1;\r\n}\r\nif(false) {\r\n  print 0;\r\n}";
+            break;
+          case "while":
+            code = "var i = 5;\r\nwhile(i > 0) {\r\n  print i--;\r\n}";
+            break;
+          case "print":
+            code = "print 'Hello World!'";
+            break;
+          case "value":
+            code = "// Get the current value of the element.\r\n" +
+                    "#errorPanel.value('Hi, this is not an error.');\r\n" +
+                    "print #errorPanel.value();";
+            break;
+          case "text":
+            code = "// Get/Set the combined text contents of the element, including their descendants.\r\n" +
+                    "print @title.text();\r\n// change the title of this page.\r\n" +
+                    "@title.text('Web page title changed.');\r\n" +
+                    "print @button[0].text();\r\n" +
+                    "@button[1].text(@button[1].text() + ' again');";
+            break;
+          case "eval":
+            code = "// You can use eval to run JavaScript directly.\r\n" +
+                    "eval('alert(\"This is an alert.\")');";
+            break;
+          case "String":
+            code = "print 'a' + 'b';";
+            break;
+          case "int":
+            code = "print 1 + 2;";
+            break;
+          case "Selector":
+            code = "// use # to select html elem by id\r\n" +
+                    "print #resultPanel;\r\n\r\n" +
+                    "// use @ to select html elem by tag\r\n" +
+                    "print @textarea;\r\n" +
+                    "print @textarea[0]; // the same as @textarea\r\n\r\n" +
+                    "// you can select html elem recursively\r\n" +
+                    "print #container.input[0];\r\n" +
+                    "print @body.textarea[0];";
+            break;
+          case "Manipulation":
+            code = "// refer to KEYWORDS value and text.";
+            break;
+          case "Unary Operators":
+            code = "var age = 29;\r\n" +
+                    "print age++;\r\n" +
+                    "print --age;\r\n" +
+                    "print ++age + age--;";
+            break;
+          case "Boolean Operators":
+            code = "print !false;\r\n" +
+                    "print !0;\r\n" +
+                    "print !\"\";\r\n" +
+                    "print !!0;\r\n" +
+                    "print !!\"\";\r\n" +
+                    "print true && false;\r\n" +
+                    "print true || false;";
+            break;
+          case "Multiplicative Operators":
+            code = "print 34 * 56;\r\n" +
+                    "print 66 / 11;";
+            break;
+          case "Modulus":
+            code = "print 26 % 5;";
+            break;
+          case "Additive Operators":
+            code = "print 1 + 2;\r\n" +
+                    "print 1 + '2'\r\n" +
+                    "print 2 - 1;\r\n" +
+                    "print 2 - '1';";
+            break;
+          case "Relational Operators":
+            code = "print 5 > 3;\r\n" +
+                    "print 'Brick' < 'alphabet';";
+            break;
+          case "Equality Operators":
+            code = "print true == 1;\r\n" +
+                    "print false == 0;\r\n" +
+                    "print '5' == 5;\r\n" +
+                    "print 1 != 2;";
+            break;
+          case "Assignment Operators":
+            code = "var num = 10;\r\n" +
+                    "num += 10;\r\n" +
+                    "print num;";
+            break;
+        }
+
+        $("#content").val(code);
+        run(code);
+      });
+    });
+
+    function run(s) {
+      if (!s) {
+        errorLog("The input cannot be empty. Exit.");
+        return;
+      }
+
+      // init
+      startTime = currentTime();
+      $("#log").text("");
+      $("#errorPanel").text("");
+      $("#resultPanel").text("");
+      $("#machineCode").text("");
+
+      // Lexical analysis
+      (function () {
+        var dataToBeCompiled = s;
+        var reader = new Reader(dataToBeCompiled);
+        var scanner = new Scanner(reader);
+
+        log("------ Start lexical analysis.");
+        while (true) {
+          var token = scanner.nextToken();
+          if (token == Token.tokens.EOS) {
+            break;
+          }
+
+          log("Read token: " + Token.backwardMap[token]);
+        }
+        log("------ Finished lexical analysis.");
+      })();
+
+      // Syntactic analysis
+      (function () {
+
+        var dataToBeCompiled = s;
+        var reader = new Reader(dataToBeCompiled);
+        var scanner = new Scanner(reader);
+
+        log("------ Start syntactic analysis.");
+        var parser = new Parser(scanner);
+        var expressionBlockNode = parser.parse();
+        log("------ Finished syntactic analysis.");
+
+        //console.log(expressionBlockNode);
+
+        log("------ Start compile.");
+        var compiler = new Compiler();
+        var machineCode = compiler.getMachineCode(expressionBlockNode);
+        log("------ Finished compile.");
+
+        // output machine code
+        var codeStr = '';
+        for (var cc = 0, lc = machineCode.length; cc < lc; cc++) {
+          var code = machineCode[cc];
+          codeStr += code.opcode + " ";
+          for (var cs = 0, ls = code.operands.length; cs < ls; cs++) {
+            codeStr += code.operands[cs] + ",";
+          }
+          codeStr += "\r\n";
+        }
+        $("#machindCode").text(codeStr);
+
+        log("------ Start run.");
+        var vm = new Machine(machineCode);
+        vm.run();
+        log("------ Finished run.");
+
+        // output and clear error log
+        Errors.each(function (error, i) {
+          errorLog("Line " + error.line + ": (" + Errors.type[error.type] + ") " + error.msg);
+        });
+        Errors.clear();
+      })();
+    }
+  </script>
+
+</body>
+</html>

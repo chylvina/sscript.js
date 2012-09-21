@@ -1,0 +1,5 @@
+﻿# Build and Release Folders
+bin/
+
+# Project property files
+.idea/

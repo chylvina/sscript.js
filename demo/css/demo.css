@@ -1,0 +1,19 @@
+/* Survey Script Demo
+-------------------------------------------------- */
+body {
+  position: relative;
+  padding-top: 40px;
+}
+
+textarea {
+  font-size: 18px;
+}
+
+.nav-list > li > a {
+  padding-left: 28px;
+}
+
+.nav-list > li > span {
+  padding: 3px 13px;
+  color: #999;
+}
